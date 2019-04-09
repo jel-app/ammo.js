@@ -57,6 +57,7 @@ def build():
 
   wasm = 'wasm' in sys.argv
   closure = 'closure' in sys.argv
+  profiling = 'profiling' in sys.argv
 
   args = '-O3 --llvm-lto 1 -s ENVIRONMENT=web -s NO_EXIT_RUNTIME=1 -s NO_FILESYSTEM=1 -s EXPORTED_RUNTIME_METHODS=["UTF8ToString"]'
   if not wasm:
@@ -67,6 +68,8 @@ def build():
     args += ' --closure 1 -s IGNORE_CLOSURE_COMPILER_ERRORS=1' # closure complains about the bullet Node class (Node is a DOM thing too)
   else:
     args += ' -s NO_DYNAMIC_EXECUTION=1'
+  if profiling:
+    args += ' --profiling'
 
   emcc_args = args.split(' ')
 
