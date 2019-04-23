@@ -1,5 +1,6 @@
 
 include "HACD"
+include "VHACD"
 include "ConvexDecomposition"
 
 include "Serialize/BulletFileLoader"

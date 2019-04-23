@@ -18,6 +18,13 @@ os.path.join('BulletSoftBody', 'btSoftRigidDynamicsWorld.h'), os.path.join('Bull
 os.path.join('BulletSoftBody', 'btSoftBodyRigidBodyCollisionConfiguration.h'),
 os.path.join('BulletSoftBody', 'btSoftBodyHelpers.h'),
 
+os.path.join('HACD', 'hacdHACD.h'),
+
+os.path.join('VHACD', 'public', 'VHACD.h'),
+os.path.join('VHACD', 'inc', 'vhacdTimer.h'),
+'sstream',
+os.path.join('VHACD', 'inc', 'vhacdVHACD.h'),
+
 os.path.join('..', '..', 'idl_templates.h')]
 
 # Startup
@@ -128,23 +135,23 @@ def build():
 
     stage('Build bindings')
 
-    args = ['-I../src', '-c']
+    args = ['-I../src', '-I../Extras', '-c']
     for include in INCLUDES:
       args += ['-include', include]
     emscripten.Building.emcc('glue.cpp', args, 'glue.bc')
     assert(os.path.exists('glue.bc'))
 
-    # Configure with CMake on Windows, and with configure on Unix.
-    cmake_build = emscripten.WINDOWS
+    # Use CMake to build, because ./configure doesn't know how to build the extras correctly yet.
+    cmake_build = True
 
     if cmake_build:
       if not os.path.exists('CMakeCache.txt'):
         stage('Configure via CMake')
-        emscripten.Building.configure([emscripten.PYTHON, os.path.join(EMSCRIPTEN_ROOT, 'emcmake'), 'cmake', '..', '-DBUILD_DEMOS=OFF', '-DBUILD_EXTRAS=OFF', '-DBUILD_CPU_DEMOS=OFF', '-DUSE_GLUT=OFF', '-DCMAKE_BUILD_TYPE=Release'])
+        emscripten.Building.configure([emscripten.PYTHON, os.path.join(EMSCRIPTEN_ROOT, 'emcmake'), 'cmake', '..', '-DBUILD_DEMOS=OFF', '-DBUILD_EXTRAS=ON', '-DBUILD_CPU_DEMOS=OFF', '-DUSE_GLUT=OFF', '-DCMAKE_BUILD_TYPE=Release'])
     else:
       if not os.path.exists('config.h'):
         stage('Configure (if this fails, run autogen.sh in bullet/ first)')
-        emscripten.Building.configure(['../configure', '--disable-demos','--disable-dependency-tracking'])
+        emscripten.Building.configure(['../configure', '--disable-demos', '--disable-extras', '--disable-dependency-tracking'])
 
     stage('Make')
 
@@ -159,14 +166,18 @@ def build():
 
     if cmake_build:
       bullet_libs = [os.path.join('src', 'BulletSoftBody', 'libBulletSoftBody.a'),
-                    os.path.join('src', 'BulletDynamics', 'libBulletDynamics.a'),
-                    os.path.join('src', 'BulletCollision', 'libBulletCollision.a'),
-                    os.path.join('src', 'LinearMath', 'libLinearMath.a')]
+                     os.path.join('src', 'BulletDynamics', 'libBulletDynamics.a'),
+                     os.path.join('src', 'BulletCollision', 'libBulletCollision.a'),
+                     os.path.join('src', 'LinearMath', 'libLinearMath.a'),
+                     os.path.join('Extras', 'HACD', 'libHACD.a'),
+                     os.path.join('Extras', 'VHACD', 'libVHACD.a')]
     else:
       bullet_libs = [os.path.join('src', '.libs', 'libBulletSoftBody.a'),
-                    os.path.join('src', '.libs', 'libBulletDynamics.a'),
-                    os.path.join('src', '.libs', 'libBulletCollision.a'),
-                    os.path.join('src', '.libs', 'libLinearMath.a')]
+                     os.path.join('src', '.libs', 'libBulletDynamics.a'),
+                     os.path.join('src', '.libs', 'libBulletCollision.a'),
+                     os.path.join('src', '.libs', 'libLinearMath.a'),
+                     os.path.join('Extras', '.libs', 'libHACD.a'),
+                     os.path.join('Extras', '.libs', 'libVHACD.a')]
 
     emscripten.Building.link(['glue.bc'] + bullet_libs, 'libbullet.bc')
     assert os.path.exists('libbullet.bc')

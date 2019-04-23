@@ -1,7 +1,9 @@
+SUBDIRS = src
+if CONDITIONAL_BUILD_EXTRAS
+SUBDIRS += Extras
+endif
 if CONDITIONAL_BUILD_DEMOS
-SUBDIRS=src Extras Demos
-else
-SUBDIRS=src 
+SUBDIRS += Demos
 endif
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = bullet.pc

@@ -87,6 +87,12 @@ AC_ARG_ENABLE([demos],
     [],
     [enable_demos=yes])
 AM_CONDITIONAL([CONDITIONAL_BUILD_DEMOS], [false])
+AC_ARG_ENABLE([extras],
+    [AS_HELP_STRING([--disable-extras],
+            [disable Bullet extras])],
+    [],
+    [enable_extras=yes])
+AM_CONDITIONAL([CONDITIONAL_BUILD_EXTRAS], [false])
 
 dnl Check for OpenGL and GLUT
 
@@ -125,10 +131,11 @@ case "$host" in
                       AC_CHECK_LIB(glu32, main, [GL_LIBS="-lglu32 $GL_LIBS"; have_glu=yes], , -lopengl32)
                       LDFLAGS="$TEMP_LDFLAGS"
                       if test $have_gl = no -o $have_glu = no -o $have_gl_headers = no; then
-                        if test x$enable_demos = xyes; then
+                        if test x$enable_demos = xyes -o x$enable_extras = xyes; then
                           AC_MSG_WARN([Demos and Extras will not be built because OpenGL and GLUT doesn't seem to work. See `config.log' for details.])
                         fi
                         enable_demos=no
+                        enable_extras=no
                       else
                       AC_MSG_NOTICE([Found OpenGL])
                       fi
@@ -145,7 +152,10 @@ if test "x$enable_demos" != xno; then
     AM_CONDITIONAL([CONDITIONAL_BUILD_DEMOS],[true])
 fi
 
-
+if test "x$enable_extras" != xno; then
+    AC_MSG_NOTICE([Building Bullet extras])
+    AM_CONDITIONAL([CONDITIONAL_BUILD_EXTRAS],[true])
+fi
 
 AC_ARG_ENABLE([debug],
     [AC_HELP_STRING([--enable-debug],
