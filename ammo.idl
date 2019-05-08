@@ -25,6 +25,7 @@ interface btVector3 {
   void btVector3();
   void btVector3(float x, float y, float z);
   float length();
+  float length2();
   float x();
   float y();
   float z();
