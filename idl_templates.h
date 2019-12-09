@@ -3,6 +3,9 @@
 typedef btAlignedObjectArray<btVector3> btVector3Array;
 typedef btAlignedObjectArray<btFace> btFaceArray;
 typedef btAlignedObjectArray<int> btIntArray;
+typedef btAlignedObjectArray<btIndexedMesh> btIndexedMeshArray;
+typedef btAlignedObjectArray<const btCollisionObject*> btConstCollisionObjectArray;
+typedef btAlignedObjectArray<btScalar> btScalarArray;
 
 typedef HACD::Vec3<HACD::Real> Vec3Real;
 typedef HACD::Vec3<long> Vec3Long;

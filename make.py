@@ -64,8 +64,12 @@ def build():
 
   wasm = 'wasm' in sys.argv
   closure = 'closure' in sys.argv
+  add_function_support = 'add_func' in sys.argv
 
-  args = '-O3 --llvm-lto 1 -s ENVIRONMENT=web -s NO_EXIT_RUNTIME=1 -s NO_FILESYSTEM=1 -s EXPORTED_RUNTIME_METHODS=["UTF8ToString"]'
+#-s ENVIRONMENT=web
+  args = '-O3 --llvm-lto 1 -s NO_EXIT_RUNTIME=1 -s NO_FILESYSTEM=1 -s EXPORTED_RUNTIME_METHODS=["UTF8ToString"]'
+  if add_function_support:
+    args += ' -s RESERVED_FUNCTION_POINTERS=20 -s EXTRA_EXPORTED_RUNTIME_METHODS=["addFunction"]'  
   if not wasm:
     args += ' -s WASM=0 -s AGGRESSIVE_VARIABLE_ELIMINATION=1 -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -s SINGLE_FILE=1 -s LEGACY_VM_SUPPORT=1'
   else:
@@ -138,8 +142,8 @@ def build():
     args = ['-I../src', '-I../Extras', '-c']
     for include in INCLUDES:
       args += ['-include', include]
-    emscripten.Building.emcc('glue.cpp', args, 'glue.bc')
-    assert(os.path.exists('glue.bc'))
+    emscripten.Building.emcc('glue.cpp', args, 'glue.o')
+    assert(os.path.exists('glue.o'))
 
     # Use CMake to build, because ./configure doesn't know how to build the extras correctly yet.
     cmake_build = True
@@ -179,13 +183,10 @@ def build():
                      os.path.join('Extras', '.libs', 'libHACD.a'),
                      os.path.join('Extras', '.libs', 'libVHACD.a')]
 
-    emscripten.Building.link(['glue.bc'] + bullet_libs, 'libbullet.bc')
-    assert os.path.exists('libbullet.bc')
-
     stage('emcc: ' + ' '.join(emcc_args))
 
     temp = os.path.join('..', '..', 'builds', target)
-    emscripten.Building.emcc('libbullet.bc', emcc_args + ['--js-transform', 'python %s' % os.path.join('..', '..', 'bundle.py')],
+    emscripten.Building.emcc('-DNOTHING_WAKA_WAKA', emcc_args + ['glue.o'] + bullet_libs + ['--js-transform', 'python %s' % os.path.join('..', '..', 'bundle.py')],
                             temp)
 
     assert os.path.exists(temp), 'Failed to create script code'
