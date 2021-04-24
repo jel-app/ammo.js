@@ -1,4 +1,11 @@
-Ammo().then(function(Ammo) {
+const test = require('ava');
+const loadAmmo = require('./helpers/load-ammo.js');
+
+// Initialize global Ammo once for all tests:
+test.before(async t => loadAmmo())
+
+test('constraint', t => {
+
   function testConstraint() {
 
     // init world
@@ -45,12 +52,12 @@ Ammo().then(function(Ammo) {
     localA.getBasis().setEulerZYX(0,0,-Math.PI/4); localA.setOrigin(new Ammo.btVector3((-0.18), (-0.10), (0.)));
     localB.getBasis().setEulerZYX(0,0,-Math.PI/4); localB.setOrigin(new Ammo.btVector3((0.), (0.22), (0.)));
     coneC = new Ammo.btConeTwistConstraint(body1, body2, localA, localB);
-    coneC.setLimit(Math.PI/4, Math.PI/4, 0); 
+    coneC.setLimit(Math.PI/4, Math.PI/4, 0);
     dynamicsWorld.addConstraint(coneC, true);
 
     function check(array) {
       array.forEach(function(value) {
-        assert(!isNaN(value), 'NaN appeared!');
+        t.assert(!isNaN(value), 'NaN appeared!');
       });
     }
 
@@ -63,18 +70,16 @@ Ammo().then(function(Ammo) {
         body1.getMotionState().getWorldTransform(trans);
         var vals = [trans.getOrigin().x().toFixed(2), trans.getOrigin().y().toFixed(2), trans.getOrigin().z().toFixed(2)];
         check(vals);
-        print(i + '/1 : ' + vals);
+        t.log(i + '/1 : ' + vals);
       }
       if (body2.getMotionState()) {
         body2.getMotionState().getWorldTransform(trans);
         var vals = [trans.getOrigin().x().toFixed(2), trans.getOrigin().y().toFixed(2), trans.getOrigin().z().toFixed(2)];
         check(vals);
-        print(i + '/2 : ' + vals);
+        t.log(i + '/2 : ' + vals);
       }
     }
   }
 
   testConstraint();
-
-  print('ok.');
-});
+})

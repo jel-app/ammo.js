@@ -5,4 +5,4 @@ services:
     build: .
     volumes:
       - .:/code
-    command: sh build.sh ${MAKE_ARGS}
+    command: bash -c "rm -f builds/ammo.* && cmake -B builds -DCLOSURE=1 && cmake --build builds"

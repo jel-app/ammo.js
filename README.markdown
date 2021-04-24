@@ -2,17 +2,20 @@ ammo.js
 =======
 
 
-# Demos
+Demos
+-----
 
- * [Cubes](http://kripken.github.com/ammo.js/examples/webgl_demo/ammo.html)
- * [Cubes (WebAssembly)](http://kripken.github.com/ammo.js/examples/webgl_demo/ammo.wasm.html)
- * [SoftBody-Rope](http://kripken.github.com/ammo.js/examples/webgl_demo_softbody_rope/index.html)
- * [SoftBody-Cloth](http://kripken.github.com/ammo.js/examples/webgl_demo_softbody_cloth/index.html)
- * [SoftBody-Volume](http://kripken.github.com/ammo.js/examples/webgl_demo_softbody_volume/index.html)
- * [Heightmap](http://kripken.github.com/ammo.js/examples/webgl_demo_terrain/index.html)
- * [Vehicle](http://kripken.github.io/ammo.js/examples/webgl_demo_vehicle/index.html)
+ * [Cubes](https://rawcdn.githack.com/kripken/ammo.js/99d0ec0b1e26d7ccc13e013caba8e8a5c98d953b/examples/webgl_demo/ammo.html)
+ * [Cubes (WebAssembly)](https://rawcdn.githack.com/kripken/ammo.js/99d0ec0b1e26d7ccc13e013caba8e8a5c98d953b/examples/webgl_demo/ammo.wasm.html)
+ * [SoftBody-Rope](https://rawcdn.githack.com/kripken/ammo.js/99d0ec0b1e26d7ccc13e013caba8e8a5c98d953b/examples/webgl_demo_softbody_rope/index.html)
+ * [SoftBody-Cloth](https://rawcdn.githack.com/kripken/ammo.js/99d0ec0b1e26d7ccc13e013caba8e8a5c98d953b/examples/webgl_demo_softbody_cloth/index.html)
+ * [SoftBody-Volume](https://rawcdn.githack.com/kripken/ammo.js/99d0ec0b1e26d7ccc13e013caba8e8a5c98d953b/examples/webgl_demo_softbody_volume/index.html)
+ * [Heightmap](https://rawcdn.githack.com/kripken/ammo.js/99d0ec0b1e26d7ccc13e013caba8e8a5c98d953b/examples/webgl_demo_terrain/index.html)
+ * [Vehicle](https://rawcdn.githack.com/kripken/ammo.js/99d0ec0b1e26d7ccc13e013caba8e8a5c98d953b/examples/webgl_demo_vehicle/index.html)
 
-# Overview
+
+Overview
+--------
 
 **Example code to give you an idea of the API**:
 
@@ -41,25 +44,7 @@ Instructions
 
 `builds/ammo.js` contains a prebuilt version of ammo.js. This is probably what you want.
 
-You can also build ammo.js yourself, as follows:
-
- * Get Emscripten
-
-      http://emscripten.org
-
-   and set it up. See
-
-      http://kripken.github.io/emscripten-site/docs/getting_started/
-
- * Run the build script,
-
-      `python make.py`
-
-   which should generate builds/ammo.js.
-
- * Optionally, run the automatic tests,
-
-      `python test.py`
+You can also [build](#building) ammo.js yourself.
 
 
 Usage
@@ -87,7 +72,7 @@ demo code in
 
 
 Bindings API
-============
+------------
 
 ammo.js autogenerates its API from the Bullet source code, so it should
 be basically identical. There are however some differences and things
@@ -135,18 +120,103 @@ to be aware of:
     | `==`      | `op_eq`    |
 
 
+Building
+--------
+
+In order to build ammo.js yourself, you will need
+[Emscripten](http://emscripten.org) and [cmake](https://cmake.org/download).
+
+For more information about setting up Emscripten, see the [getting started
+guide](https://emscripten.org/docs/getting_started).
+
+To configure and build ammo into the `builds` directory, run the following:
+
+  ```bash
+  $ cmake -B builds
+  $ cmake --build builds
+  ```
+
+There are also some key options that can be specified during cmake
+configuration, for example:
+
+  ```bash
+  $ cmake -B builds -DCLOSURE=1                # compile with closure
+  $ cmake -B builds -DTOTAL_MEMORY=268435456   # allocate a 256MB heap
+  $ cmake -B builds -DALLOW_MEMORY_GROWTH=1    # enable a resizable heap
+  ```
+
+On windows, you can build using cmake's
+[mingw](https://chocolatey.org/packages/mingw) generator:
+
+  ```bat
+  > cmake -B builds -G 'MinGW Makefiles'
+  > cmake --build builds
+  ```
+
+Note that if you have not installed emscripten via the emsdk, you can configure
+its location with `-DEMSCRIPTEN_ROOT`.
+
+### Building using Docker
+
+ammo.js can also be built with [Docker](https://www.docker.com).
+This offers many advantages (keeping its native environment clean, portability, etc.).
+To do this, you just have to install Docker and run:
+
+  ```bash
+  $ docker-compose build  # to create the Docker image
+  $ docker-compose up     # to create the Docker container and build ammo.js
+  ```
+
+If you want to add arguments to cmake, you have to edit the `docker-compose.yml` file. 
+
 Reducing Build Size
-===============
+-------------------
 
 The size of the ammo.js builds can be reduced in several ways:
 
   * Removing uneeded interfaces from ammo.idl. Some good examples of this are `btIDebugDraw` and `DebugDrawer`, which are both only needed if visual debug rendering is desired.
 
   * Removing methods from the `-s EXPORTED_RUNTIME_METHODS=[]` argument in make.py. For example, `UTF8ToString` is only needed if printable error messages are desired from `DebugDrawer`.
+<<<<<<< HEAD
+=======
+
+
+Testing
+-------
+
+You can run the automatic tests with `npm test`, which in turn will run [ava](https://github.com/avajs/ava) against both the javascript and WebAssembly builds:
+
+```bash
+$ npm run test-js      # --> AMMO_PATH=builds/ammo.js ava
+$ npm run test-wasm    # --> AMMO_PATH=builds/ammo.wasm.js ava
+```
+
+It's also possible to run ava directly for more options:
+
+```
+$ npx ava --verbose
+$ npx ava --node-arguments inspect
+```
+
+When no `AMMO_PATH` is defined, `builds/ammo.js` is tested by default.
+
+
+Running the Examples
+--------------------
+
+[http-server](https://github.com/http-party/http-server) is included as a dev
+dependency as an easy way to run the examples. Make sure to serve everything
+from the repo root so that the examples can find ammo in the `builds`
+directory:
+
+  ```bash
+  $ npx http-server -p 3000 .
+  ```
+>>>>>>> 05a9b87a560c40cfebbcfc9b5ec871278dfb73c0
 
 
 Troubleshooting
-===============
+---------------
 
   * It's easy to forget to write |new| when creating an object, for
     example
@@ -162,7 +232,7 @@ Troubleshooting
 
 
 Reporting Issues
-================
+----------------
 
 If you find a bug in ammo.js and file an issue, please include a script
 that reproduces the problem. That way it is easier to debug, and we can
@@ -170,26 +240,24 @@ then include that script in our automatic tests.
 
 
 Release Process
-===============
+---------------
 
 Pushing a new build in `builds/ammo.js` should be done only after the
 following steps:
 
-  * Build using  python make.py closure       which generates the asm.js
-    build, and   python make.py closure wasm  which generates the wasm
-    build.
+  * Configure with [closure](https://github.com/google/closure-compiler)
+    enabled: `cmake -B builds -DCLOSURE=1`
 
-  * Make sure it passes all automatic tests using
-    python test.py (build-name)  Note that it uses SpiderMonkey
-    by default, and SPIDERMONKEY_ENGINE is defined in ~/.emscripten,
-    see the script contents for details.
+  * Build both the asm.js and wasm libraries: `cmake --build builds`
+
+  * Make sure they pass all automatic tests: `npm test`
 
   * Run the WebGL demo in examples/webgl_demo and make sure it looks
-    ok, using something like  firefox examples/webgl_demo/ammo.html
+    ok, using something like `firefox examples/webgl_demo/ammo.html`
     (chrome will need a webserver as it doesn't like file:// urls)
 
 
 Upstream Version
-================
+----------------
 
 Bullet 2.82 patched with [raycast fix from 2.83](https://github.com/bulletphysics/bullet3/commit/7151865c16ba996996206e1fd7869cbb1e7edd8d)
