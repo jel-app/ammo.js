@@ -1078,3 +1078,13 @@ interface btSoftBodyHelpers {
   btSoftBody CreateFromTriMesh([Ref] btSoftBodyWorldInfo worldInfo, float[] vertices, long[] triangles, long ntriangles, boolean randomizeConstraints);
   btSoftBody CreateFromConvexHull([Ref] btSoftBodyWorldInfo worldInfo, [Const] btVector3 vertices, long nvertices, boolean randomizeConstraints);
 };
+
+interface btUniformScalingShape {
+  void btUniformScalingShape(btConvexShape convexChildShape, float uniformScalingFactor);
+  [Const] btConvexShape getChildShape();
+  void setLocalScaling([Const, Ref] btVector3 scaling);
+  [Const, Ref] btVector3 getLocalScaling();
+  void setMargin(float margin);
+  float getMargin();
+};
+btUniformScalingShape implements btConvexShape;

@@ -21,6 +21,7 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h" //for raycasting
 #include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h" //for raycasting
+#include "BulletCollision/CollisionShapes/btUniformScalingShape.h"
 #include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
@@ -32,6 +33,7 @@ subject to the following restrictions:
 #include "LinearMath/btAabbUtil2.h"
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btSerializer.h"
+#include "LinearMath/btAabbUtil2.h"
 #include "BulletCollision/CollisionShapes/btConvexPolyhedron.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
@@ -1264,12 +1266,24 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 			debugDrawObject(worldTransform*childTrans,colShape,color);
 		}
 
+	} else if (shape->getShapeType() == UNIFORM_SCALING_SHAPE_PROXYTYPE) {
+		const btUniformScalingShape* scalingShape = static_cast<const btUniformScalingShape*>(shape);
+		const btConvexShape* colShape = scalingShape->getChildShape();
+		btTransform aabbTransform;
+		aabbTransform.setIdentity();
+		btVector3 aabbMin;
+		btVector3 aabbMax;
+		btVector3 worldAabbMin;
+		btVector3 worldAabbMax;
+		scalingShape->getAabb(aabbTransform, aabbMin, aabbMax);
+		btTransformAabb(aabbMin, aabbMax, 0.0, worldTransform, worldAabbMin, worldAabbMax);
+                getDebugDrawer()->drawAabb(worldAabbMin,worldAabbMax,color);
+		debugDrawObject(worldTransform,colShape,color);
 	} else
 	{
 
         switch (shape->getShapeType())
         {
-
         case BOX_SHAPE_PROXYTYPE:
             {
                 const btBoxShape* boxShape = static_cast<const btBoxShape*>(shape);
