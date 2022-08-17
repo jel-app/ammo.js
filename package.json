@@ -1,6 +1,9 @@
 {
   "name": "ammo.js",
   "version": "0.0.2",
+  "browser": {
+    "fs": false
+  },
   "description": "Direct port of the Bullet physics engine to JavaScript using Emscripten",
   "main": "builds/ammo.js",
   "repository": {
